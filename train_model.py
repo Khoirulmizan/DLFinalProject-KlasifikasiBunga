@@ -1,31 +1,36 @@
 # File: train_model.py
-#
-# Skrip untuk melatih model CNN dari NOL.
+# Jalankan dengan perintah: python train_model.py
+# Skrip untuk melatih model CNN.
 # Fokus utama: Augmentasi data dan arsitektur custom.
 
 import tensorflow as tf  # noqa: F401
 from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
-from tensorflow.keras.models import Sequential # type: ignore
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, Input # type: ignore
+from tensorflow.keras.layers import Dense, Dropout, GlobalAveragePooling2D # type: ignore
+from tensorflow.keras.applications import MobileNetV2 # type: ignore
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input # type: ignore
+from tensorflow.keras.models import Model # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping # type: ignore
+from sklearn.utils import class_weight
+import numpy as np
 import os  # noqa: F401
 import json
 import matplotlib.pyplot as plt
 
 # --- 1. Konfigurasi Parameter ---
 DATASET_DIR = 'Dataset Bunga'
-# Kita gunakan ukuran gambar yang sedikit lebih kecil (lebih cepat dilatih)
-IMG_SIZE = (150, 150) 
-BATCH_SIZE = 8
-NUM_CLASSES = 22 # Sesuai jumlah folder (bunga1 s/d bunga22)
-EPOCHS = 50 # Kita butuh lebih banyak epoch untuk belajar dari nol
+# Kita gunakan ukuran gambar yang sedikit lebih kecil agar lebih cepat dilatih
+IMG_SIZE = (224, 224)
+BATCH_SIZE = 16
+NUM_CLASSES = 21 # Sesuai jumlah folder (bunga1 s/d bunga22)
+EPOCHS = 80 # Kita butuh lebih banyak epoch untuk belajar dari nol
 LEARNING_RATE = 0.001 # Learning rate standar untuk Adam
 
 # --- 2. Prapemrosesan & Augmentasi Data ---
 # Untuk data latih, kita akan menggunakan augmentasi untuk mencegah overfitting
 train_datagen = ImageDataGenerator(
-    rescale=1./255,           # Normalisasi piksel
-    rotation_range=40,        # Augmentasi: Rotasi
+    preprocessing_function=preprocess_input,
+    rotation_range=30,        # Augmentasi: Rotasi
     width_shift_range=0.2,    # Augmentasi: Geser horizontal
     height_shift_range=0.2,   # Augmentasi: Geser vertikal
     shear_range=0.2,          # Augmentasi: 'Gunting'
@@ -37,7 +42,7 @@ train_datagen = ImageDataGenerator(
 
 # Untuk data validasi, JANGAN augmentasi. Cukup normalisasi aja.
 validation_datagen = ImageDataGenerator(
-    rescale=1./255,
+    preprocessing_function=preprocess_input,
     validation_split=0.2
 )
 
@@ -64,68 +69,87 @@ class_names = list(class_indices.keys())
 print(f"Kelas yang ditemukan: {class_names}")
 
 # --- 3. Membangun Arsitektur Model CNN ---
-# Ini adalah arsitektur yang kita tentukan sendiri
 
-model = Sequential([
-    # Tentukan input shape di layer pertama
-    Input(shape=(*IMG_SIZE, 3)),
-    
-    # Blok Konvolusi 1
-    # Layer Konvolusi untuk mencari 32 pola/fitur
-    Conv2D(32, (3, 3), activation='relu', padding='same'),
-    # Layer Pooling untuk mereduksi ukuran (downsampling)
-    MaxPooling2D((2, 2)),
-    
-    # Blok Konvolusi 2
-    # Kita tingkatkan jumlah filter agar model belajar fitur yang lebih kompleks
-    Conv2D(64, (3, 3), activation='relu', padding='same'),
-    MaxPooling2D((2, 2)),
-    
-    # Blok Konvolusi 3
-    Conv2D(128, (3, 3), activation='relu', padding='same'),
-    MaxPooling2D((2, 2)),
+# 1. Muat Base Model MobileNetV2 sebagai Pengekstrak Fitur
+base_model = MobileNetV2(
+    input_shape=(*IMG_SIZE, 3),
+    include_top=False, # Jangan sertakan classifier ImageNet
+    weights='imagenet' # Gunakan bobot ImageNet
+)
 
-    # Blok Konvolusi 4 (Opsional, jika butuh lebih dalam)
-    Conv2D(128, (3, 3), activation='relu', padding='same'),
-    MaxPooling2D((2, 2)),
-    
-    # 'Kepala' Model (Classifier)
-    # Layer Flatten: Mengubah data 2D (matrix) menjadi 1D (vektor)
-    Flatten(),
-    
-    # Layer Fully-Connected (Dense)
-    Dense(512, activation='relu'),
-    
-    # Layer Dropout: Senjata melawan overfitting
-    # 'Mematikan' 50% neuron secara acak saat training
-    Dropout(0.5),
-    
-    # Layer Output (Fully-Connected)
-    # Harus memiliki neuron sejumlah NUM_CLASSES (22)
-    # Aktivasi 'softmax' untuk klasifikasi multi-kelas
-    Dense(NUM_CLASSES, activation='softmax')
-])
+# 2. Bekukan Base Model karena kita hanya menggunakannya sebagai pengekstrak fitur saja
+base_model.trainable = False
+
+# 3. Bangun Model CNN sendiri di atas base model
+inputs = base_model.output
+x = GlobalAveragePooling2D()(inputs)
+x = Dense(128, activation='relu')(x)
+x = Dropout(0.5)(x)
+outputs = Dense(NUM_CLASSES, activation='softmax')(x)
+
+# 4. Gabungkan
+model = Model(inputs=base_model.input, outputs=outputs)
 
 # --- 4. Kompilasi dan Pelatihan Model ---
-
 model.compile(
     optimizer=Adam(learning_rate=LEARNING_RATE),
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
 
-# Tampilkan arsitektur model yang kita buat
 print(model.summary())
 
-# Mulai pelatihan
-print("\n--- Memulai Pelatihan Model (Dari Nol) ---")
+# ReduceLROnPlateau akan memonitor 'val_loss',
+# Jika val_loss tidak membaik (stuck) selama 'patience' (3 epoch),
+# learning rate akan dikurangi (factor=0.5)
+reduce_lr = ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,  # Kurangi LR sebesar 50%
+    patience=3,  # Tunggu 3 epoch
+    min_lr=0.00001, # Batas LR terkecil
+    verbose=1      # Beri tahu kita saat LR diubah
+)
+
+# Callback untuk menghentikan training saat mentok
+early_stopping = EarlyStopping(
+    monitor='val_loss',      # Awasi val_loss
+    patience=10,             # Hentikan setelah 10 epoch tidak ada perbaikan
+    verbose=1,
+    restore_best_weights=True  # Kembalikan bobot terbaik
+)
+
+# --- Hitung Class Weights untuk data tidak seimbang ---
+print("\n--- Menghitung Class Weights untuk Imbalance ---")
+
+# Dapatkan label kelas untuk setiap sampel di data training
+# train_generator.classes akan memberi kita array [0, 0, 1, 1, 1, 2, 3, 3, ...]
+training_classes = train_generator.classes
+
+# Hitung bobotnya
+class_weights = class_weight.compute_class_weight(
+    'balanced',
+    classes=np.unique(training_classes),
+    y=training_classes
+)
+
+# Ubah menjadi format dictionary yang Keras inginkan
+# {class_index: weight}
+# {0: 1.2, 1: 0.8, 2: 5.4, ...}
+class_weights_dict = dict(enumerate(class_weights))
+
+print("Class weights berhasil dihitung.")
+
+# Mulai pelatihan model dengan class weights
+print("\n--- Memulai Pelatihan Model (Versi Stabil + Class Weights) ---")
 history = model.fit(
     train_generator,
     validation_data=validation_generator,
-    epochs=EPOCHS
+    epochs=EPOCHS,
+    callbacks=[reduce_lr, early_stopping],
+    class_weight=class_weights_dict
 )
 
-# --- Membuat Plot Training Curve ---
+# --- 5. Membuat Plot Training Curve ---
 print("\n--- Membuat Grafik Training Curve ---")
 
 # Ambil data dari history pelatihan
@@ -163,9 +187,6 @@ plt.ylabel('Loss')
 plt.savefig('training_curves.png')
 print("Grafik telah disimpan sebagai: training_curves.png")
 
-# Tampilkan plot (opsional, bisa di-comment jika berjalan di server)
-# plt.show()
-
 # --- 5. Evaluasi dan Penyimpanan Model ---
 
 print("\n--- Evaluasi Model ---")
@@ -174,7 +195,7 @@ print(f"Akurasi Validasi: {val_accuracy * 100:.2f}%")
 print(f"Loss Validasi: {val_loss:.4f}")
 
 # Simpan model
-MODEL_SAVE_PATH = 'flower_classifier_scratch.keras'
+MODEL_SAVE_PATH = 'flower_classifier_model.keras'
 model.save(MODEL_SAVE_PATH)
 print(f"\nModel telah disimpan di: {MODEL_SAVE_PATH}")
 

@@ -29,7 +29,7 @@ except ImportError:
 def load_model():
     try:
         # Ganti nama file model yang dimuat
-        model = tf.keras.models.load_model('flower_classifier_scratch.keras') 
+        model = tf.keras.models.load_model('flower_classifier_model.keras') 
         return model
     except Exception as e:
         st.error(f"Gagal memuat model: {e}")
@@ -48,7 +48,7 @@ except FileNotFoundError:
 
 # --- 2. Fungsi Helper untuk Prapemrosesan Gambar ---
 
-def preprocess_image(image_data, target_size=(150, 150)): # <-- PERUBAHAN 2
+def preprocess_image(image_data, target_size=(224, 224)): # <-- PERUBAHAN 2
     """
     Mengubah gambar ke format yang sesuai untuk model CUSTOM kita.
     """
@@ -57,7 +57,7 @@ def preprocess_image(image_data, target_size=(150, 150)): # <-- PERUBAHAN 2
     if img.mode != 'RGB':
         img = img.convert('RGB')
         
-    img = img.resize(target_size) # <-- Sesuaikan dengan target_size (150, 150)
+    img = img.resize(target_size) # <-- Sesuaikan dengan target_size 
     img_array = np.asarray(img)
     img_array = np.expand_dims(img_array, axis=0) 
     img_array = img_array / 255.0 # Rescale (sesuai training)

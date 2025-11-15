@@ -6,7 +6,8 @@
 tensorflow
 streamlit
 numpy
-scipy
 Pillow
+opencv-python-headless
 matplotlib
-opencv-python-headless # Kadang dibutuhkan oleh Streamlit untuk kamera
+scipy
+scikit-learn
