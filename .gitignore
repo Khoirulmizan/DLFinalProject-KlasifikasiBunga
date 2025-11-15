@@ -1,0 +1,17 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE files
+.vscode/
+.idea/
+
+# File spesifik OS
+.DS_Store
+
+# File-file besar yang tidak perlu
+# Kita BIARKAN .keras dan .png agar temen-temen dosen bisa lihat
+# Jika model terlalu besar, kita akan bahas Git LFS nanti

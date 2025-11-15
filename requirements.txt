@@ -1,0 +1,12 @@
+# File: requirements.txt
+#
+# Daftar pustaka yang dibutuhkan.
+# Instal dengan: pip install -r requirements.txt
+
+tensorflow
+streamlit
+numpy
+scipy
+Pillow
+matplotlib
+opencv-python-headless # Kadang dibutuhkan oleh Streamlit untuk kamera
