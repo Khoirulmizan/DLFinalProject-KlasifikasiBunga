@@ -42,7 +42,7 @@ DATA_BUNGA = {
     "bunga6": {
         "nama_umum": "Kana, Tasbih",
         "nama_latin": "Canna Indica",
-        "Kerabat": "Canna",
+        "kerabat": "Canna",
         "jenis": "Tanaman Terna",
         "deskripsi": "Tanaman hias yang mencolok karena bunganya yang besar dan cerah serta daunnya yang lebar mirip daun pisang. Bunga pada foto ini memiliki warna dasar kuning-oranye dengan bintik-bintik merah yang cantik."
     },
