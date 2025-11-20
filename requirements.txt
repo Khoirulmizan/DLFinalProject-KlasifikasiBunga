@@ -7,7 +7,7 @@ tensorflow
 streamlit
 numpy
 Pillow
-opencv-python-headless
+opencv-python
 matplotlib
 scipy
 scikit-learn
