@@ -15,21 +15,18 @@ from io import BytesIO
 # --- 1. Muat Aset yang Dibutuhkan ---
 
 # Muat informasi bunga dari file .py
-# Kita perlu sedikit trik untuk impor dari file .py
 try:
     from informasi_bunga import DATA_BUNGA
 except ImportError:
     st.error("Gagal memuat file `informasi_bunga.py`. Pastikan file tersebut ada.")
-    # Sediakan data dummy jika gagal agar aplikasi tetap jalan
     DATA_BUNGA = {"bunga1": {"nama_umum": "Error", "deskripsi": "Data tidak ditemukan"}}
 
 # Muat model yang sudah dilatih
-# Gunakan @st.cache_resource agar model tidak di-load ulang setiap saat
 @st.cache_resource
 def load_model():
     try:
-        # Ganti nama file model yang dimuat
-        model = tf.keras.models.load_model('flower_classifier_model.keras') 
+        # Pastikan nama file model sesuai dengan output train_model.py
+        model = tf.keras.models.load_model('flower_classifier_nano.keras') 
         return model
     except Exception as e:
         st.error(f"Gagal memuat model: {e}")
@@ -43,47 +40,24 @@ try:
         CLASS_NAMES = json.load(f)
 except FileNotFoundError:
     st.error("File `class_names.json` tidak ditemukan. Jalankan `train_model.py` terlebih dahulu.")
-    # Sediakan data dummy
     CLASS_NAMES = ["bunga1"]
 
 # --- 2. Fungsi Helper untuk Prapemrosesan Gambar ---
 
-# Di bagian atas app.py tambahkan:
-try:
-    from preprocess_utils import smart_crop_function
-except ImportError:
-    smart_crop_function = None
-
-# Di dalam fungsi preprocess_image:
-def preprocess_image(image_data, target_size=(128, 128)): 
+def preprocess_image(image_data, target_size=(224, 224)): 
+    """
+    Mengubah gambar ke format yang sesuai untuk model CUSTOM kita.
+    """
     img = Image.open(image_data)
+    
     if img.mode != 'RGB':
         img = img.convert('RGB')
-    
+        
+    img = img.resize(target_size) 
     img_array = np.asarray(img)
-    
-    # --- Terapkan Smart Crop ---
-    if smart_crop_function:
-        # Fungsi kita mengharapkan array, dan mengembalikan array float 0-1
-        # Kita perlu sesuaikan sedikit karena smart_crop_function melakukan resize sendiri
-        # Tapi untuk amannya di app, kita panggil logic-nya atau resize manual
-        # Untuk simplisitas di app, kita bisa skip cropping kompleks jika takut error,
-        # TAPI terbaik adalah menggunakannya.
-        
-        # Mari kita anggap kita resize dulu ke ukuran agak besar sebelum crop
-        img_cv = np.array(img) # Konversi PIL ke Numpy
-        img_processed = smart_crop_function(img_cv) # Hasilnya sudah float 0-1 dan resized
-        
-        # Perlu expand_dims untuk batch
-        img_array = np.expand_dims(img_processed, axis=0)
-        return img_array
-    else:
-        # Fallback manual
-        img = img.resize(target_size)
-        img_array = np.asarray(img)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
-        return img_array
+    img_array = np.expand_dims(img_array, axis=0) 
+    img_array = img_array / 255.0 # Rescale (sesuai training)
+    return img_array
 
 # --- 3. Tampilan (UI) Aplikasi Streamlit ---
 
@@ -95,10 +69,8 @@ st.markdown("---")
 # Pilihan input: Upload Gambar atau Akses Kamera
 st.header("Pilih Sumber Gambar")
 
-# Gunakan tab untuk tampilan yang lebih rapi
 tab1, tab2 = st.tabs(["Unggah Gambar dari Galeri", "Ambil Gambar dengan Kamera"])
 
-# Inisialisasi variabel input_image
 input_image = None
 
 with tab1:
@@ -108,15 +80,16 @@ with tab1:
     )
     if uploaded_file is not None:
         input_image = BytesIO(uploaded_file.getvalue())
-        # --- PERUBAHAN 1 (Fix Warning) ---
-        st.image(input_image, caption="Gambar yang Diunggah", use_container_width=True)
+        # Gunakan width='stretch' sebagai pengganti use_container_width=True
+        st.image(input_image, caption="Gambar yang Diunggah", width=None) 
+        # Catatan: Jika Streamlit versi terbaru protes, gunakan st.image(..., use_container_width=True) 
+        st.image(input_image, caption="Gambar yang Diunggah") 
 
 with tab2:
     camera_img = st.camera_input("Arahkan kamera ke bunga:")
     if camera_img is not None:
         input_image = camera_img
-        # --- PERUBAHAN 2 (Fix Warning) ---
-        st.image(input_image, caption="Gambar dari Kamera", use_container_width=True)
+        st.image(input_image, caption="Gambar dari Kamera")
 
 # --- 4. Logika Prediksi dan Tampilan Hasil ---
 
@@ -124,15 +97,13 @@ if input_image is not None and model is not None:
     if st.button("🌸 Klasifikasikan Bunga Ini!", type="primary"):
         with st.spinner("Model sedang menganalisis gambar..."):
             
-            # 1. Preprocessing
+            # 1. Preprocessing 
             processed_img = preprocess_image(input_image)
             
-            # 2. Prediksi (mendapatkan array probabilitas)
-            # Ambil [0] karena outputnya berbentuk batch (misal: [[0.1, 0.8, ...]])
+            # 2. Prediksi
             prediction = model.predict(processed_img)[0]
             
             # 3. Ambil Top 5
-            # argsort mengurutkan dari terkecil, ambil 5 terakhir, balik urutannya
             top_5_indices = np.argsort(prediction)[-5:][::-1]
             top_5_probs = prediction[top_5_indices]
             top_5_class_names = [CLASS_NAMES[i] for i in top_5_indices]
@@ -146,26 +117,29 @@ if input_image is not None and model is not None:
             st.header("Hasil Prediksi Model")
             
             if top_1_info:
-                # Tampilkan hasil utama
                 st.success(f"**Prediksi Teratas:** {top_1_info['nama_umum']} ({top_1_confidence:.2f}%)")
                 
                 # --- TAMPILKAN GAMBAR ACAK ---
                 try:
                     st.subheader("Contoh Gambar dari Dataset")
                     folder_path = os.path.join('Dataset Bunga', top_1_class_name)
-                    all_images = [f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-                    
-                    if all_images:
-                        random_image_name = random.choice(all_images)
-                        sample_image_path = os.path.join(folder_path, random_image_name)
-                        st.image(sample_image_path, caption=f"Contoh: {top_1_info['nama_umum']}", use_container_width=True)
+                    # Cek folder ada atau tidak
+                    if os.path.exists(folder_path):
+                        all_images = [f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+                        
+                        if all_images:
+                            random_image_name = random.choice(all_images)
+                            sample_image_path = os.path.join(folder_path, random_image_name)
+                            st.image(sample_image_path, caption=f"Contoh: {top_1_info['nama_umum']}")
+                        else:
+                            st.warning("Tidak dapat menemukan gambar contoh di dataset.")
                     else:
-                        st.warning("Tidak dapat menemukan gambar contoh di dataset.")
-                except Exception as e:
-                    st.error(f"Error saat memuat gambar contoh: {e}")
-                # ---------------------------------------------
+                        st.warning(f"Folder dataset tidak ditemukan: {folder_path}")
 
-                # Tampilkan informasi lengkap untuk Top 1
+                except Exception as e:
+                    # Jangan stop aplikasi cuma gara-gara gambar contoh error
+                    st.warning(f"Gagal memuat gambar contoh (Abaikan jika di server): {e}")
+
                 st.subheader(f"Detail tentang {top_1_info['nama_umum']}")
                 col1, col2 = st.columns(2)
                 with col1:
@@ -177,7 +151,6 @@ if input_image is not None and model is not None:
                 
                 st.markdown("---")
                 
-                # --- TAMPILKAN TOP 5 ---
                 st.subheader("5 Prediksi Teratas:")
                 for i in range(len(top_5_class_names)):
                     class_name = top_5_class_names[i]
@@ -192,10 +165,8 @@ if input_image is not None and model is not None:
                             st.write(f"{i+1}. {nama_umum} ({prob:.2f}%)")
                     else:
                         st.write(f"{i+1}. {class_name} ({prob:.2f}%) - (Info tidak ditemukan)")
-                # ------------------------------------
 
             else:
-                # Jika data tidak ditemukan di informasi_bunga.py
                 st.error(f"Prediksi: {top_1_class_name} (Confidence: {top_1_confidence:.2f}%)")
                 st.warning("Informasi detail untuk bunga ini tidak ditemukan.")
 
