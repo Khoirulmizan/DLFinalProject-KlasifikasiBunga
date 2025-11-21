@@ -19,13 +19,13 @@ try:
     from informasi_bunga import DATA_BUNGA
 except ImportError:
     st.error("Gagal memuat file `informasi_bunga.py`. Pastikan file tersebut ada.")
+    # Sediakan data dummy jika gagal agar aplikasi tetap jalan
     DATA_BUNGA = {"bunga1": {"nama_umum": "Error", "deskripsi": "Data tidak ditemukan"}}
 
 # Muat model yang sudah dilatih
 @st.cache_resource
 def load_model():
     try:
-        # Ganti nama file model yang dimuat
         # Pastikan nama file model sesuai dengan output train_model.py
         model = tf.keras.models.load_model('flower_classifier_nano.keras') 
         return model
@@ -54,7 +54,6 @@ def preprocess_image(image_data, target_size=(224, 224)):
     if img.mode != 'RGB':
         img = img.convert('RGB')
         
-    img = img.resize(target_size) # <-- Sesuaikan dengan target_size
     img = img.resize(target_size) 
     img_array = np.asarray(img)
     img_array = np.expand_dims(img_array, axis=0) 
@@ -82,16 +81,13 @@ with tab1:
     )
     if uploaded_file is not None:
         input_image = BytesIO(uploaded_file.getvalue())
-        # Gunakan width='stretch' sebagai pengganti use_container_width=True
-        st.image(input_image, caption="Gambar yang Diunggah", width=None) 
-        # Catatan: Jika Streamlit versi terbaru protes, gunakan st.image(..., use_container_width=True) 
-        st.image(input_image, caption="Gambar yang Diunggah") 
+        st.image(input_image, caption="Gambar yang Diunggah", use_container_width=True) 
 
 with tab2:
     camera_img = st.camera_input("Arahkan kamera ke bunga:")
     if camera_img is not None:
         input_image = camera_img
-        st.image(input_image, caption="Gambar dari Kamera")
+        st.image(input_image, caption="Gambar dari Kamera", use_container_width=True)
 
 # --- 4. Logika Prediksi dan Tampilan Hasil ---
 
@@ -99,7 +95,7 @@ if input_image is not None and model is not None:
     if st.button("🌸 Klasifikasikan Bunga Ini!", type="primary"):
         with st.spinner("Model sedang menganalisis gambar..."):
             
-            # 1. Preprocessing 
+            # 1. Preprocessing (Sekarang menggunakan 224x224)
             processed_img = preprocess_image(input_image)
             
             # 2. Prediksi
@@ -132,15 +128,14 @@ if input_image is not None and model is not None:
                         if all_images:
                             random_image_name = random.choice(all_images)
                             sample_image_path = os.path.join(folder_path, random_image_name)
-                            st.image(sample_image_path, caption=f"Contoh: {top_1_info['nama_umum']}")
+                            st.image(sample_image_path, caption=f"Contoh: {top_1_info['nama_umum']}", use_container_width=True)
                         else:
                             st.warning("Tidak dapat menemukan gambar contoh di dataset.")
                     else:
-                        st.warning(f"Folder dataset tidak ditemukan: {folder_path}")
+                        st.info("Gambar contoh tidak tersedia di server.")
 
                 except Exception as e:
-                    # Jangan stop aplikasi cuma gara-gara gambar contoh error
-                    st.warning(f"Gagal memuat gambar contoh (Abaikan jika di server): {e}")
+                    st.warning(f"Gagal memuat gambar contoh: {e}")
 
                 st.subheader(f"Detail tentang {top_1_info['nama_umum']}")
                 col1, col2 = st.columns(2)
