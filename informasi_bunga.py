@@ -5,21 +5,21 @@
 
 DATA_BUNGA = {
     "bunga1": {
-        "nama_umum": "Air Mata Pengantin",
+        "nama_umum": "Bunga Air Mata Pengantin",
         "nama_latin": "Polygononaceae",
         "kerabat": "Gandum Kuda, Kelembak, Knotweed",
         "jenis": "Tanaman Hias",
         "deskripsi": "Air Mata Pengantin adalah tanaman merambat semi-kayu yang berasal dari Meksiko dan Amerika Tengah. Daunnya berbentuk hati atau segitiga dengan permukaan yang sedikit bergelombang. Bunganya kecil-kecil, berkumpul dalam tandan yang rimbun dan menjuntai. Bunga ini sangat disukai oleh serangga penyerbuk seperti lebah dan kupu-kupu. Meskipun yang paling umum dijumpai adalah varian berwarna merah muda (pink), varian berwarna putih juga cukup populer sebagai tanaman peneduh pergola atau penghias pagar."
     },
     "bunga2": {
-        "nama_umum": "Pisang-pisangan/Pisang Hias",
+        "nama_umum": "Bunga Pisang-pisangan/Pisang Hias",
         "nama_latin": "Heliconia psittacorum",
         "kerabat": "Pisang-pisangan capit udang, Heliconia merah tegak",
         "jenis": "Tanaman hias",
         "deskripsi": "Heliconia adalah tanaman tropis yang dikenal karena perbungaannya yang mencolok dan berwarna cerah. Apa yang sering dianggap sebagai 'bunga' sebenarnya adalah daun pelindung (braktea) yang dimodifikasi. Bunga aslinya berukuran kecil dan tersembunyi di dalam braktea tersebut. Braktea pada Heliconia psittacorum biasanya berwarna cerah seperti oranye, merah, dan kuning, dengan ujung yang sering berwarna hijau atau gelap. Daunnya besar, lonjong, dan mirip daun pisang, tetapi biasanya lebih kaku dan tegak. Tanaman ini sering digunakan sebagai tanaman lanskap tropis atau sebagai bunga potong."
     },
     "bunga3": {
-        "nama_umum": "Kencana",
+        "nama_umum": "Bunga Kencana",
         "nama_latin": "Ruellia simplex",
         "kerabat": "Daun ungu, Bunga Udang-udangan, Tanaman polkadot, Bunga asystasia",
         "jenis": "Tanaman Semak",
@@ -33,42 +33,42 @@ DATA_BUNGA = {
         "deskripsi": "Ini adalah bunga dari pohon besar yang sering berbunga sangat lebat di musim kemarau, sering disamakan dengan Sakura. Bunganya besar, berbentuk seperti terompet, dan berwarna kuning cerah. Bunga ini mudah rontok dan sering menguningkan jalan di bawahnya."
     },
     "bunga5": {
-        "nama_umum": "Soka",
+        "nama_umum": "Bunga Soka",
         "nama_latin": "Ixora sp",
         "kerabat": "Kopi, Mengkudu, Bunga Nusa Indah",
         "jenis": "Tanaman Semak Hias",
         "deskripsi": "Tanaman perdu tropis yang populer sebagai tanaman pagar atau hiasan. Bunganya bergerombol di ujung batang. Setiap bunga individu berukuran kecil, berbentuk tabung dengan empat kelopak yang menyebar. Daunnya kaku, mengkilap, dan berwarna hijau tua."
     },
     "bunga6": {
-        "nama_umum": "Kana, Tasbih",
+        "nama_umum": "Bunga Kana, Tasbih",
         "nama_latin": "Canna Indica",
         "kerabat": "Canna",
         "jenis": "Tanaman Terna",
         "deskripsi": "Tanaman hias yang mencolok karena bunganya yang besar dan cerah serta daunnya yang lebar mirip daun pisang. Bunga pada foto ini memiliki warna dasar kuning-oranye dengan bintik-bintik merah yang cantik."
     },
     "bunga7": {
-        "nama_umum": "Kembang Sepatu",
+        "nama_umum": "Bunga Kembang Sepatu",
         "nama_latin": "Hibiscus Rosa-sinensis",
         "kerabat": "Kapas, Okra, Waru",
         "jenis": "Tanaman Semak Hias",
         "deskripsi": "Bunga tropis yang sangat ikonik. Ciri khasnya adalah lima kelopak bunga yang besar dan putik serta benang sari yang menjulur panjang di tengahnya. Varian di foto ini unik karena tumbuh di antara daun yang beraneka warna (variegata)."
     },
     "bunga8": {
-        "nama_umum": "Marigold, Bunga Gemitir, Bunga Tahi ayam",
+        "nama_umum": "Bunga Marigold, Bunga Gemitir, Bunga Tahi ayam",
         "nama_latin": "Tagetes erecta",
         "kerabat": "Bunga Matahari, Krisan, Daisy",
         "jenis": "Tanaman Terna semusim",
         "deskripsi": "Tanaman bunga yang sangat populer, terutama di Bali (disebut Gemitir) untuk upacara adat. Bunganya padat, berlapis-lapis, dan berwarna oranye cerah. Tanaman ini memiliki aroma yang kuat dan khas, yang bagi sebagian orang dianggap tidak sedap."
     },
     "bunga9": {
-        "nama_umum": "Lantana, Tembelekan, Saliara",
+        "nama_umum": "Bunga Lantana, Tembelekan, Saliara",
         "nama_latin": "Lantana camara atau lantana montevidensis",
         "kerabat": "Verbena, Sinyo nakal",
         "jenis": "Tanaman semak berbunga",
         "deskripsi": "Tanaman ini dikenal sangat kuat, tahan panas, dan sering dianggap sebagai gulma di beberapa tempat. Bunganya kecil-kecil yang berkumpul membentuk satu gugusan (disebut umbel). Daunnya bertekstur kasar dan memiliki aroma yang khas jika diremas."
     },
     "bunga10": {
-        "nama_umum": "Mondokaki, Bunga kincir air",
+        "nama_umum": "Bunga Mondokaki, Bunga kincir air",
         "nama_latin": "Tabernaemontana divaricata",
         "kerabat": "Kamboja, Alamanda, Tapak Dara",
         "jenis": "Tanaman Semak Hias",
@@ -89,7 +89,7 @@ DATA_BUNGA = {
         "deskripsi": "Bunga pukul sembilan merupakan tanaman sukulen hias dengan bunga berwarna-warni cerah seperti merah, kuning, oranye, dan putih. Bunga ini disebut sebagai 'bunga pukul sembilan' karena umumnya mekar pada sekitar pukul sembilan pagi dan menguncup lagi saat malam atau mendung. Selain sebagai hiasan, seluruh bagian tanaman ini juga berkhasiat mengobati sakit tenggorokan, memar, radang kulit, dan luka bakar berkat kandungannya seperti portulal dan betanin."
     },
     "bunga13": {
-        "nama_umum": "Taiwan Beauty",
+        "nama_umum": "Bunga Taiwan Beauty",
         "nama_latin": "Cuphea hyssopifolia",
         "kerabat": "Bungur, Bunga Cerutu, Purple Loosestrife",
         "jenis": "Tanaman Hias",
@@ -103,14 +103,14 @@ DATA_BUNGA = {
         "deskripsi": "Tanaman ini tumbuh merambat dan berbunga sepanjang tahun asalkan mendapat sinar matahari penuh. Bunga ini tidak hanya berfungsi sebagai tanaman hias yang memperindah pergola atau halaman, tetapi juga bermanfaat untuk mengurangi polusi udara dan memiliki khasiat kesehatan tradisional."
     },
     "bunga15": {
-        "nama_umum": "Kamboja Merah,",
+        "nama_umum": "Bunga Kamboja Merah,",
         "nama_latin": "Plumeria rubra",
         "kerabat": "Kamboja Putih, Kembang Sepatu, Kamboja Pengantin",
         "jenis": "Tanaman Hias",
         "deskripsi": "Bunga ini melambangkan semangat dan keberanian, serta dianggap memberikan energi positif. Di pemakaman, bunga ini memiliki aroma yang harum bahkan saat berguguran, sehingga sering ditemukan di sana. Selain itu, dalam pengobatan tradisional, berbagai bagian tumbuhan ini (bunga, daun, kulit batang) digunakan untuk mengobati gangguan pencernaan, batuk, maupun sebagai antipiretik (penurun demam). Namun perlu diketahui bahwa getahnya bersifat racun ringan sehingga bagian tanaman ini tidak boleh dikonsumsi secara sembarangan."
     },
     "bunga16": {
-        "nama_umum": "Amargo",
+        "nama_umum": "Bunga Amargo",
         "nama_latin": "Quassia amara",
         "kerabat": "Kayu Pahit, Samadera harmandiana, Soulamea amara",
         "jenis": "Insektisida, Herbal",
@@ -150,5 +150,12 @@ DATA_BUNGA = {
         "kerabat": "Waru, Bunga Sharon, Kembang tidur",
         "jenis": "Tanaman Herbal",
         "deskripsi": "Bunga ini memiliki kelopak berwarna merah kecoklatan yang mirip kembang sepatu dan kaya akan nutrisi seperti vitamin C, vitamin A, kalsium, zat besi, dan omega-3. Rosella dapat diolah menjadi minuman seperti teh, dan memiliki beragam manfaat kesehatan, termasuk sifat antibakteri, antioksidan, dan antihipertensi."
+    },
+    "bunga22": {
+        "nama_umum": "Bunga Template",
+        "nama_latin": "Blablablabla",
+        "kerabat": "Bunga Matahari, Krisan, Daisy",
+        "jenis": "Tanaman Terna semusim",
+        "deskripsi": "Tanaman bunga yang sangat populer, terutama di Bali (disebut Gemitir) untuk upacara adat. Bunganya padat, berlapis-lapis, dan berwarna oranye cerah. Tanaman ini memiliki aroma yang kuat dan khas, yang bagi sebagian orang dianggap tidak sedap."
     }
 }

@@ -25,6 +25,7 @@ except ImportError:
 @st.cache_resource
 def load_model():
     try:
+        # Ganti nama file model yang dimuat
         # Pastikan nama file model sesuai dengan output train_model.py
         model = tf.keras.models.load_model('flower_classifier_nano.keras') 
         return model
@@ -53,6 +54,7 @@ def preprocess_image(image_data, target_size=(224, 224)):
     if img.mode != 'RGB':
         img = img.convert('RGB')
         
+    img = img.resize(target_size) # <-- Sesuaikan dengan target_size
     img = img.resize(target_size) 
     img_array = np.asarray(img)
     img_array = np.expand_dims(img_array, axis=0) 
