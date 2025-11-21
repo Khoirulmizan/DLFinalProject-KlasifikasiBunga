@@ -3,21 +3,21 @@
 # Skrip untuk melatih model CNN dari NOL.
 # Fokus utama: Augmentasi data dan arsitektur custom.
 
-import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.layers import (
+import tensorflow as tf  # noqa: F401
+from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
+from tensorflow.keras.layers import ( # type: ignore
     Input, Conv2D, MaxPooling2D, GlobalMaxPooling2D, 
     Dense, Dropout, BatchNormalization, Activation
 )
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
-from tensorflow.keras.regularizers import l2
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.optimizers import Adam # type: ignore
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping # type: ignore
+from tensorflow.keras.regularizers import l2 # type: ignore
 from sklearn.utils import class_weight
 import numpy as np
 import json
 import matplotlib.pyplot as plt
-import os
+import os  # noqa: F401
 
 # --- 1. Konfigurasi Parameter ---
 DATASET_DIR = 'Dataset Bunga'
