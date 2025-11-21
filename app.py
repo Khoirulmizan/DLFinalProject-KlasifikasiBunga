@@ -29,7 +29,7 @@ except ImportError:
 def load_model():
     try:
         # Ganti nama file model yang dimuat
-        model = tf.keras.models.load_model('flower_classifier_model.keras') 
+        model = tf.keras.models.load_model('flower_classifier_nano.keras') 
         return model
     except Exception as e:
         st.error(f"Gagal memuat model: {e}")
@@ -48,42 +48,20 @@ except FileNotFoundError:
 
 # --- 2. Fungsi Helper untuk Prapemrosesan Gambar ---
 
-# Di bagian atas app.py tambahkan:
-try:
-    from preprocess_utils import smart_crop_function
-except ImportError:
-    smart_crop_function = None
-
-# Di dalam fungsi preprocess_image:
-def preprocess_image(image_data, target_size=(128, 128)): 
+def preprocess_image(image_data, target_size=(224, 224)): 
+    """
+    Mengubah gambar ke format yang sesuai untuk model CUSTOM kita.
+    """
     img = Image.open(image_data)
+    
     if img.mode != 'RGB':
         img = img.convert('RGB')
-    
+        
+    img = img.resize(target_size) # <-- Sesuaikan dengan target_size
     img_array = np.asarray(img)
-    
-    # --- Terapkan Smart Crop ---
-    if smart_crop_function:
-        # Fungsi kita mengharapkan array, dan mengembalikan array float 0-1
-        # Kita perlu sesuaikan sedikit karena smart_crop_function melakukan resize sendiri
-        # Tapi untuk amannya di app, kita panggil logic-nya atau resize manual
-        # Untuk simplisitas di app, kita bisa skip cropping kompleks jika takut error,
-        # TAPI terbaik adalah menggunakannya.
-        
-        # Mari kita anggap kita resize dulu ke ukuran agak besar sebelum crop
-        img_cv = np.array(img) # Konversi PIL ke Numpy
-        img_processed = smart_crop_function(img_cv) # Hasilnya sudah float 0-1 dan resized
-        
-        # Perlu expand_dims untuk batch
-        img_array = np.expand_dims(img_processed, axis=0)
-        return img_array
-    else:
-        # Fallback manual
-        img = img.resize(target_size)
-        img_array = np.asarray(img)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
-        return img_array
+    img_array = np.expand_dims(img_array, axis=0) 
+    img_array = img_array / 255.0 # Rescale (sesuai training)
+    return img_array
 
 # --- 3. Tampilan (UI) Aplikasi Streamlit ---
 
